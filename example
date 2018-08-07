@@ -44,6 +44,14 @@ app.customData.images = [
     "https://upload.wikimedia.org/wikipedia/commons/7/73/Lion_waiting_in_Namibia.jpg"
 ]
 app.developerId = "1"
+m = oc.Model(client=cli)
+m.type = "single"
+m.price = 200
+m.license = "single"
+m.customData = oc.CustomData()
+m.customData.bunchy = "hello"
+app.model = [m]
+
 app = app.create()
 print("App created.")
 
@@ -236,6 +244,36 @@ print("  ID " + file.fileId)
 
 own = cli.install_app(usr, app, app.model[0])
 print("Installed app.")
+
+print("Transactions:")
+transes = cli.list_transactions()
+for t in transes:
+    print("  %s" % t.encode())
+
+trans = oc.Transaction()
+trans.amount = 200
+trans.customData.billing = "sales team"
+
+trans = cli.custom_gateway_add_payment(own, trans)
+print("Transaction: " + trans.encode())
+
+print("Transactions:")
+transes = cli.list_transactions()
+for t in transes:
+    print("  %s" % t.encode())
+
+trans = cli.custom_gateway_add_refund(own, trans)
+print("Transaction: " + trans.encode())
+
+trans.delete()
+print("Refund deleted.")
+
+print("Transactions:")
+transes = cli.list_transactions()
+for t in transes:
+    print("  %s" % t.encode())
+
+sys.exit(0)
 
 own = cli.get_ownership(own.ownershipId)
 print(own.encode())

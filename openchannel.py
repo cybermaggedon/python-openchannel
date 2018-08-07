@@ -73,13 +73,21 @@ class ObjCD(Obj):
             del res["client"]
         return json.dumps(res)
 
+    def dict(self):
+        res = {v: getattr(self, v) for v in self.__dict__}
+        res["customData"] = self.customData.__dict__
+        if "client" in res:
+            del res["client"]
+        return res
+        
+
 class File(Obj):
     """
     Represents a downloadable file object in openchanel.io
     """
     pass
 
-class Market(Obj):
+class Market(ObjCD):
     """
     Represents a marketplace object in openchanel.io
     """
@@ -107,6 +115,15 @@ class Ownership(ObjCD):
     def update(self):
         return self.client.update_ownership(self)
 
+class Transaction(ObjCD):
+    """
+    Represents ownership of an app
+    """
+    def update(self):
+        return self.client.update_transaction(self)
+    def delete(self):
+        return self.client.delete_transaction(self)
+
 class Review(ObjCD):
     """
     Represents an app review
@@ -128,7 +145,7 @@ class Stats(Obj):
     """
     pass
         
-class Model(Obj):
+class Model(ObjCD):
     """
     Represents an application pricing model.
     """
@@ -186,7 +203,7 @@ class App(Obj):
         if "status" in self.__dict__:
             res["status"] = self.status.__dict__
         if "model" in self.__dict__:
-            res["model"] = [v.__dict__ for v in self.model]
+            res["model"] = [v.dict() for v in self.model]
         if "client" in res:
             del res["client"]
         return json.dumps(res)
@@ -903,3 +920,85 @@ class Client:
         if resp.status_code != 200:
             raise ApiError(resp.status_code, resp.text)
 
+    def list_transactions(self, query=None):
+
+        if query == None:
+            query = {}
+
+        url = "%s/transactions?query=%s&sort=%s" % (
+            self.base, query, {"date": -1}
+        )
+
+        resp = self.session.get(url, auth=self.auth)
+        if resp.status_code != 200:
+            raise ApiError(resp.status_code, resp.text)
+
+        return [Transaction(client=self).parse(v) for v in resp.json()["list"]]
+
+    def update_transaction(self, trans):
+
+        headers = { "Content-Type": "application/json" }
+        request = trans.encode()
+
+        url = "%s/transactions/%s" % (
+            self.base, trans.transactionId
+        )
+
+        resp = self.session.post(url, data=request, auth=self.auth,
+                                 headers=headers)
+        if resp.status_code != 200:
+            raise ApiError(resp.status_code, resp.text)
+        
+        return Transaction(client=self).parse(resp.json())
+
+    def custom_gateway_add_payment(self, own, trans):
+
+        headers = { "Content-Type": "application/json" }
+        request = trans.encode()
+
+        url = "%s/custom-gateway/payment/%s" % (
+            self.base, own.ownershipId
+        )
+
+        resp = self.session.post(url, data=request, auth=self.auth,
+                                 headers=headers)
+        if resp.status_code != 200:
+            raise ApiError(resp.status_code, resp.text)
+        
+        return Transaction(client=self).parse(resp.json())
+
+    def custom_gateway_add_refund(self, own, trans):
+
+        headers = { "Content-Type": "application/json" }
+        request = trans.encode()
+
+        url = "%s/custom-gateway/refund/%s" % (
+            self.base, own.ownershipId
+        )
+
+        resp = self.session.post(url, data=request, auth=self.auth,
+                                 headers=headers)
+        if resp.status_code != 200:
+            raise ApiError(resp.status_code, resp.text)
+        
+        return Transaction(client=self).parse(resp.json())
+
+    def get_transaction(self, id):
+
+        url = "%s/transactions/%s" % ( self.base, id )
+
+        resp = self.session.get(url, auth=self.auth)
+        if resp.status_code != 200:
+            raise ApiError(resp.status_code, resp.text)
+        
+        return Transaction(client=self).parse(resp.json())
+
+    def delete_transaction(self, trans):
+
+        url = "%s/transactions/%s" % (
+            self.base, trans.transactionId
+        )
+
+        resp = self.session.delete(url, auth=self.auth)
+        if resp.status_code != 200:
+            raise ApiError(resp.status_code, resp.text)
