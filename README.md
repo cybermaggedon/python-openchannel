@@ -1,5 +1,5 @@
 
-# PyOpenchannelIO
+# PyOpenchannel
 
 ## Introduction
 
@@ -81,3 +81,11 @@ stats = cli.get_stats_series(start=1000 * int(time.time() - (86400 * 7)), end=10
 print("Series:")
 print(stats)
 ```
+
+## Most of the API is implemented
+
+Read openchannel.py for calls which aren't described here.
+
+Most objects are mapped straight in from the OpenChannel API, see the docs
+for their structure e.g. `app.name` and `app.customData.summary` work.
+
