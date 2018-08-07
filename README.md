@@ -21,7 +21,7 @@ cli = oc.Client(marketplaceid, secret)
 ```
 apps = cli.list_apps()
 for v in apps:
-    print("  %s version %s..." % (v.name))
+    print("  %s" % (v.name))
 ```
 
 ## List apps and versions
@@ -29,7 +29,7 @@ for v in apps:
 ```
 apps = cli.list_app_versions()
 for v in apps:
-    print("  %s version %s..." % (v.name, v.version))
+    print("  %s version %s" % (v.name, v.version))
 ```
 
 ## Get an app
@@ -81,6 +81,20 @@ stats = cli.get_stats_series(start=1000 * int(time.time() - (86400 * 7)), end=10
 print("Series:")
 print(stats)
 ```
+
+## Install an app
+
+usr = cli.get_user("3233")
+app = cli.get_app_by_safename("fish-1")
+own = cli.install_app(usr, app, app.model[0])
+print("Installed app.")
+
+## Ownership
+
+print("Product keys:")
+owns = cli.list_ownership()
+for o in owns:
+    print("  %s" % o.productKey)
 
 ## Most of the API is implemented
 
