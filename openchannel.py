@@ -738,7 +738,5 @@ class Client:
         if resp.status_code != 200:
             raise ApiError(resp.status_code, resp.text)
 
-        print resp.json()
-        
         return Ownership(client=self).parse(resp.json())
     

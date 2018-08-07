@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import json
 import time
@@ -20,7 +20,7 @@ cyberprobe="https://github.com/cybermaggedon/cyberprobe/releases/download/v1.9.1
 apps = cli.list_apps()
 
 for v in apps:
-    print "Deleting %s..." % v.name
+    print("Deleting %s..." % v.name)
     v.delete()
 
 #########################################################################
@@ -39,18 +39,18 @@ app.customData.images = [
 ]
 app.developerId = "1"
 app = app.create()
-print "App created."
+print("App created.")
 
 # Store stuff coming back on app creation.
 appid = app.appId
 safename = app.safeName[0]
 
-print "  Safe name is " + safename
-print "  Created %s %s" % (app.name, app.appId)
+print("  Safe name is " + safename)
+print("  Created %s %s" % (app.name, app.appId))
 
 # Publish version v1.
 app.publish_version(1, autoApprove=True)
-print "Published v1."
+print("Published v1.")
 
 # Update some stuff.
 app.customData.description = "Bunchy"
@@ -59,39 +59,39 @@ app.author = "Hello world"
 app = app.update(1)
 
 version = app.version
-print "Updated %s %s" % (app.name, app.appId)
-print "  Description is now %s." % app.customData.description
+print("Updated %s %s" % (app.name, app.appId))
+print("  Description is now %s." % app.customData.description)
 
 app.publish_version(version, autoApprove=True)
-print "Published v" + str(version)
+print("Published v" + str(version))
 
 app = cli.get_app_version(appid, 1)
-print "v1 name is " + app.name
+print("v1 name is " + app.name)
 app = cli.get_app_version(appid, 2)
-print "v2 name is " + app.name
+print("v2 name is " + app.name)
 
 app = cli.get_app(appid)
-print "Name is now " + app.name
+print("Name is now " + app.name)
 
 app.change_live_version(1)
-print "v1 is live"
+print("v1 is live")
 
 app = cli.get_app(appid)
-print "Name is now " + app.name
+print("Name is now " + app.name)
 
-print "Status is " + app.status.value
+print("Status is " + app.status.value)
 app.status_change("suspend", "API testing")
 
 app = cli.get_app(appid)
-print "Status is " + app.status.value
+print("Status is " + app.status.value)
 
 app.status_change("unsuspend", "API testing")
 
 app = cli.get_app(appid)
-print "Status is " + app.status.value
+print("Status is " + app.status.value)
 
 app = cli.get_app_by_safename(safename)
-print "App %s is %s" % (app.safeName[0], app.name)
+print("App %s is %s" % (app.safeName[0], app.name))
 
 #########################################################################
 
@@ -99,19 +99,19 @@ grp = oc.DeveloperGroup(client=cli)
 grp.groupId = "abcde"
 grp.customData.companyName = "Example Ltd."
 grp = grp.update()
-print grp.encode()
+print(grp.encode())
 
 grp = cli.get_developer_group("abcde")
-print grp.encode()
+print(grp.encode())
 
-print "Developer 1:"
+print("Developer 1:")
 dev = cli.get_developer("1")
-print "  " + dev.encode()
+print("  " + dev.encode())
 
-print "Developers:"
+print("Developers:")
 devs = cli.list_developers()
 for dev in devs:
-    print "  " + dev.encode()
+    print("  " + dev.encode())
 
 dev = cli.get_developer("1")
 dev.name = "Mark"
@@ -120,7 +120,7 @@ dev.customData.companyName = "Example Ltd."
 dev.customData.interests = ["cybersecurity", "cycling"]
 
 dev = dev.update()
-print dev.encode()
+print(dev.encode())
 
 dev = oc.Developer(client=cli)
 dev.developerId = "233"
@@ -128,9 +128,9 @@ dev.groupId = "abcde"
 dev.name = "Brian"
 dev.update()
 
-print "Developer 233:"
+print("Developer 233:")
 dev = cli.get_developer("233")
-print "  " + dev.encode()
+print("  " + dev.encode())
 
 #########################################################################
 
@@ -138,19 +138,19 @@ grp = oc.UserGroup(client=cli)
 grp.groupId = "zzzabcde"
 grp.customData.companyName = "Example Ltd."
 grp = grp.update()
-print grp.encode()
+print(grp.encode())
 
 grp = cli.get_user_group("zzzabcde")
-print grp.encode()
+print(grp.encode())
 
-print "User 1:"
+print("User 1:")
 usr = cli.get_user("1")
-print "  " + usr.encode()
+print("  " + usr.encode())
 
-print "Users:"
+print("Users:")
 usrs = cli.list_users()
 for usr in usrs:
-    print "  " + usr.encode()
+    print("  " + usr.encode())
 
 usr = cli.get_user("1")
 usr.name = "Mark"
@@ -159,7 +159,7 @@ usr.customData.companyName = "Example Ltd."
 usr.customData.interests = ["cybersecurity", "cycling"]
 
 usr = usr.update()
-print usr.encode()
+print(usr.encode())
 
 usr = oc.User(client=cli)
 usr.userId = "3233"
@@ -167,69 +167,69 @@ usr.groupId = "zzzabcde"
 usr.name = "Brian"
 usr.update()
 
-print "User 3233:"
+print("User 3233:")
 usr = cli.get_user("3233")
-print "  " + usr.encode()
+print("  " + usr.encode())
 
 #########################################################################
 
 file = cli.upload_file("file", "hello world")
-print "Uploaded /etc/hosts as " + file.fileUrl
-print "  ID " + file.fileId
+print("Uploaded /etc/hosts as " + file.fileUrl)
+print("  ID " + file.fileId)
 
 file = cli.upload_url(cyberprobe)
-print "Uploaded cyberprobe as " + file.fileUrl
-print "  ID " + file.fileId
+print("Uploaded cyberprobe as " + file.fileUrl)
+print("  ID " + file.fileId)
 
 #########################################################################
 
 own = cli.install_app(usr, app, app.model[0])
-print "Installed app."
+print("Installed app.")
 
 own = cli.get_ownership(own.ownershipId)
-print own.encode()
+print(own.encode())
 
 own.customData.bunchy = "Hello"
 own = own.update()
 own = cli.get_ownership(own.ownershipId)
-print "  " + own.encode()
+print("  " + own.encode())
 
-print "Product keys:"
+print("Product keys:")
 owns = cli.list_ownership()
 for o in owns:
-    print "  %s" % o.productKey
+    print("  %s" % o.productKey)
 
 cli.uninstall_app(own)
 
-print "Uninstalled."
+print("Uninstalled.")
 
 #########################################################################
 
-print "Stats:"
+print("Stats:")
 stats = cli.get_stats_total()
 
 for v in stats.apps:
     stat = stats.apps[v]
     app = cli.get_app(v)
-    print "  " + app.name, stat["downloads"], stat["views"]
+    print("  " + app.name, stat["downloads"], stat["views"])
 
 stats = cli.get_stats_series(start=1000 * int(time.time() - (86400 * 7)), end=1000 * int(time.time()))
 
-print "Series:"
-print stats
+print("Series:")
+print(stats)
 
 #########################################################################
 
-print "Search:"
+print("Search:")
 apps = cli.search_apps("GCP")
 for v in apps:
-    print "  %s version %s..." % (v.name, v.version)
+    print("  %s version %s..." % (v.name, v.version))
 
-print "All versions:"    
+print("All versions:"    )
 apps = cli.list_app_versions()
 
 for v in apps:
-    print "  %s version %s..." % (v.name, v.version)
+    print("  %s version %s..." % (v.name, v.version))
 
 
 
