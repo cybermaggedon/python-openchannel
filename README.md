@@ -84,18 +84,20 @@ print(stats)
 
 ## Install an app
 
+```
 usr = cli.get_user("3233")
 app = cli.get_app_by_safename("fish-1")
 own = cli.install_app(usr, app, app.model[0])
 print("Installed app.")
+```
 
 ## Ownership
-
+```
 print("Product keys:")
 owns = cli.list_ownership()
 for o in owns:
     print("  %s" % o.productKey)
-
+```
 ## Most of the API is implemented
 
 Read openchannel.py for calls which aren't described here.

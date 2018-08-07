@@ -15,6 +15,11 @@ cyberprobe="https://github.com/cybermaggedon/cyberprobe/releases/download/v1.9.1
 
 #########################################################################
 
+market = cli.get_market()
+print("Market: %s %s" % (market.marketplaceId, market.name))
+
+#########################################################################
+
 # Get list of apps, and then delete them.
 
 apps = cli.list_apps()
@@ -29,6 +34,7 @@ for v in apps:
 app = oc.App(client=cli)
 app.name = "Fish"
 app.author = "Example Ltd."
+app.access = ["steal-secrets", "encrypt-files"]
 app.customData.description = "Here is an app"
 app.customData.summary = "Here is an app"
 app.customData.icon = icon
@@ -51,6 +57,51 @@ print("  Created %s %s" % (app.name, app.appId))
 # Publish version v1.
 app.publish_version(1, autoApprove=True)
 print("Published v1.")
+
+#########################################################################
+
+review = oc.Review(client=cli)
+review.appId = appid
+review.userId = "1"
+review.headline = "What a great app"
+review.rating = 400
+review.description = "What a bunch of stuff"
+review.mustOwnApp = False
+review.customData.bunchy = "12389123"
+review = review.create()
+
+print("  Review: %s %s" % (review.rating, review.headline))
+
+reviewid = review.reviewId
+
+review.rating = 300
+review.headline = "It's OK"
+
+review = review.update()
+
+review = cli.get_review(reviewid)
+
+print(review.encode())
+
+print("  Review: %s %s" % (review.rating, review.headline))
+
+review = cli.get_review_by_app_user(app, cli.get_user("1"))
+print("  Review: %s %s" % (review.rating, review.headline))
+
+print("Reviews:")
+reviews = cli.list_reviews()
+for review in reviews:
+    print("  Review: %s %s" % (review.rating, review.headline))
+
+#########################################################################
+
+perm = oc.Permission(client=cli)
+perm.userId = "1"
+perm = perm.add(app)
+print(perm.encode())
+perm.delete(app)
+
+#########################################################################
 
 # Update some stuff.
 app.customData.description = "Bunchy"

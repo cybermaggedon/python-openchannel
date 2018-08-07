@@ -35,6 +35,12 @@ class Obj:
     def __str__(self):
         return str({v: getattr(self, v) for v in self.__dict__})
 
+    def encode(self):
+        res = {v: getattr(self, v) for v in self.__dict__}
+        if "client" in res:
+            del res["client"]
+        return json.dumps(res)
+
 class CustomData(Obj):
     """
     Represents a custom data for an app, user or group.
@@ -73,12 +79,48 @@ class File(Obj):
     """
     pass
 
+class Market(Obj):
+    """
+    Represents a marketplace object in openchanel.io
+    """
+    pass
+
+class Permission(Obj):
+    """
+    Represents a user permission object
+    """
+    def add(self, app):
+        """
+        Adds user permission to an app
+        """
+        return self.client.add_permission(app, self)
+    def delete(self, app):
+        """
+        Adds user permission to an app
+        """
+        return self.client.delete_permission(app, self)
+
 class Ownership(ObjCD):
     """
-    Represents a downloadable file object in openchanel.io
+    Represents ownership of an app
     """
     def update(self):
         return self.client.update_ownership(self)
+
+class Review(ObjCD):
+    """
+    Represents an app review
+    """
+    def create(self):
+        """
+        Creates a review
+        """
+        return self.client.create_review(self)
+    def update(self):
+        """
+        Updates a review
+        """
+        return self.client.update_review(self)
 
 class Stats(Obj):
     """
@@ -739,4 +781,125 @@ class Client:
             raise ApiError(resp.status_code, resp.text)
 
         return Ownership(client=self).parse(resp.json())
-    
+
+    def create_review(self, review):
+
+        headers = { "Content-Type": "application/json" }
+        request = review.encode()
+
+        url = "%s/reviews" % (
+            self.base
+        )
+
+        resp = self.session.post(url, data=request, auth=self.auth,
+                                 headers=headers)
+        if resp.status_code != 200:
+            raise ApiError(resp.status_code, resp.text)
+        
+        return Review(client=self).parse(resp.json())
+
+    def update_review(self, review):
+
+        headers = { "Content-Type": "application/json" }
+        request = review.encode()
+
+        url = "%s/reviews/%s" % (
+            self.base, review.reviewId
+        )
+
+        resp = self.session.post(url, data=request, auth=self.auth,
+                                 headers=headers)
+        if resp.status_code != 200:
+            raise ApiError(resp.status_code, resp.text)
+        
+        return Review(client=self).parse(resp.json())
+
+    def get_review(self, id):
+
+        url = "%s/reviews/%s" % (
+            self.base, id
+        )
+
+        resp = self.session.get(url, auth=self.auth)
+        if resp.status_code != 200:
+            raise ApiError(resp.status_code, resp.text)
+        
+        return Review(client=self).parse(resp.json())
+
+    def get_review_by_app_user(self, app, user):
+
+        url = "%s/reviews/apps/%s/users/%s" % (
+            self.base, app.appId, user.userId
+        )
+
+        resp = self.session.get(url, auth=self.auth)
+        if resp.status_code != 200:
+            raise ApiError(resp.status_code, resp.text)
+        
+        return Review(client=self).parse(resp.json())
+
+    def list_reviews(self, query=None):
+
+        if query == None:
+            query = {}
+
+        url = "%s/reviews?query=%s&sort=%s&userId=%s" % (
+            self.base, query, {"date": 1}, self.userId
+        )
+
+        resp = self.session.get(url, auth=self.auth)
+        if resp.status_code != 200:
+            raise ApiError(resp.status_code, resp.text)
+
+        return [Review(client=self).parse(v) for v in resp.json()["list"]]
+
+    def get_market(self):
+
+        url = "%s/markets/this" % (
+            self.base
+        )
+
+        resp = self.session.get(url, auth=self.auth)
+        if resp.status_code != 200:
+            raise ApiError(resp.status_code, resp.text)
+        
+        return Market(client=self).parse(resp.json())
+
+    def add_permission(self, app, perm):
+
+        headers = { "Content-Type": "application/json" }
+        request = perm.encode()
+
+        url = "%s/permission/apps/%s" % (
+            self.base, app.appId
+        )
+
+        resp = self.session.post(url, data=request, auth=self.auth,
+                                 headers=headers)
+        if resp.status_code != 200:
+            raise ApiError(resp.status_code, resp.text)
+        
+        return Permission(client=self).parse(resp.json())
+
+    def get_permission(self, app, user):
+
+        url = "%s/permission/apps/%s?userId=%s" % (
+            self.base, app.appId, user.userId
+        )
+
+        resp = self.session.get(url, auth=self.auth)
+        if resp.status_code != 200:
+            raise ApiError(resp.status_code, resp.text)
+        
+        return Permission(client=self).parse(resp.json())
+
+    def delete_permission(self, app, user):
+
+        url = "%s/permission/apps/%s?userId=%s" % (
+            self.base, app.appId, user.userId
+        )
+
+        resp = self.session.delete(url, auth=self.auth)
+        if resp.status_code != 200:
+            raise ApiError(resp.status_code, resp.text)
+
