@@ -106,6 +106,8 @@ for review in reviews:
 perm = oc.Permission(client=cli)
 perm.userId = "1"
 perm = perm.add(app)
+
+perm = cli.get_permission(app, cli.get_user("1"))
 print(perm.encode())
 perm.delete(app)
 
@@ -272,8 +274,6 @@ print("Transactions:")
 transes = cli.list_transactions()
 for t in transes:
     print("  %s" % t.encode())
-
-sys.exit(0)
 
 own = cli.get_ownership(own.ownershipId)
 print(own.encode())

@@ -73,6 +73,7 @@ class ObjCD(Obj):
             del res["client"]
         return json.dumps(res)
 
+    # This is a hack to get app.model to encode properly.
     def dict(self):
         res = {v: getattr(self, v) for v in self.__dict__}
         res["customData"] = self.customData.__dict__
